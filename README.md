@@ -11,5 +11,6 @@ The Map of Data Science:
 ![Data Map](https://github.com/braugilabert/Data-Science-files/assets/130987096/945f073a-2eef-4434-a91b-963ff0d39dd1)
 
 Data Science & Big Data:
+
 ![Data   Data Science](https://github.com/braugilabert/Data-Science-files/assets/130987096/621c3fe2-e183-44e5-8650-96a9ebd626f7)
 

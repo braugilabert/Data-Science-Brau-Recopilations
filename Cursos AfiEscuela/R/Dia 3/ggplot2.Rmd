@@ -1,0 +1,575 @@
+---
+title: "Visualización estática con ggplot2"
+author: "Manuel Rueda"
+date: "Abril de 2021"
+output:
+  ioslides_presentation:
+    fullscreen: yes
+    widescreen: true
+    # fig_width: 50%
+    # fig_height: 50%
+    highlight: tango
+    smaller: yes
+    transition: slower
+    incremental: true
+  beamer_presentation: default
+---
+
+--- 
+
+```{r, fig.width= 6.5, fig.height=4, include=FALSE}
+knitr::opts_chunk$set(fig.align='center')
+```
+
+---
+
+## Índice 
+
+1. La gramática de ggplot
+
+2. Datos y mapeos estéticos
+
+3. Capas: _Geoms_
+
+4. Transformaciones estadísticas: _Stats_
+
+5. División en subconjuntos: _Facetting_
+
+6. Coordenadas y ejes: _Scales_
+
+7. Temas
+
+8. Leyendas
+
+9. Múltiples gráficos
+
+## 1. La gramática de ggplot: Componentes de un gráfico
+
+<ul>
+<li> <b>Datos</b>. </li>
+<li> Mapeos estéticos (<b>aesthetic mappings</b>): vinculación entre variables presentes en los datos y propiedades visuales/ atributos estéticos.</li>
+<li> Una capa que describa como mostrar cada observación o agregación de observaciones (normalmente, mediante algún tipo de <b>objeto geométrico</b>). En definitiva, es *"lo que vemos":* puntos, líneas, barras, etc. </li>
+<li>Transformaciones estadísticas.</li>
+<li>Escalas.</li>
+<li>Sistema de coordenadas. </li>
+<li>División de subconjuntos. </li>
+<ul> 
+
+## 2. Carga de librerías y datos
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE, message = FALSE}
+#install.packages('ggplot2')
+library(ggplot2)
+library(dplyr)
+
+data(diamonds)
+str(diamonds)
+```
+
+_Documentación sobre el set de datos <a href="http://docs.ggplot2.org/0.9.3.1/diamonds.html">aquí</a>._
+
+
+## Componentes obligatorios de un gráfico (I)
+
+<ul>
+<li> <b>Datos</b>. </li>
+<li> Mapeos estéticos (<b>aesthetic mappings</b>) entre variables presentes en los datos y propiedades visuales.</li>
+<li> Una capa que describa como mostrar cada observación o agregación de observaciones (normalmente, mediante algún tipo de <b>objeto geométrico</b>).</li>
+</ul>
+
+
+## Un ejemplo (muy) sencillo
+
+Queremos mostrar la relación entre peso y precio de diamantes.
+
+<ul>
+<li> ``data``: el dataset ``diamonds``. </li>
+<li> ``aesthetics``: ``x`` = ``carat``, ``y`` = ``price``. </li>
+<li> ``geom``: un punto para representar cada observación. </li>
+<ul>
+
+
+```{r, fig.width= 5, fig.height= 3, warning=FALSE}
+ggplot(data = diamonds, aes(x = carat, y = price)) + 
+  geom_point()
+```
+
+## Componentes obligatorios de un gráfico (II)
+
+Sólo con los componentes obligatorios de un gráfico (datos, <i>aesthetics</i> y <i>geoms</i>) ya se pueden hacer bastantes cosas. Por ejemplo:
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE, fig.width= 6.5, fig.height=4}
+ggplot(data = diamonds, aes(x = carat, y = price)) + 
+  geom_point(col = 'red')
+```
+
+
+## Componentes obligatorios de un gráfico (III)
+
+Aunque seguramente esto sea más interesante:
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE, fig.width= 6.5, fig.height=4}
+ggplot(data = diamonds, aes(x = carat, y = price, col = color)) + 
+  geom_point()
+```
+
+
+## Aesthetics/attributes para un <i>scatterplot</i>
+
+``geom_point`` entiende los siguientes <i>aesthetics</i>:
+
+<ul>
+<li> ``x``, ``y``. </li>
+<li> ``colour``: Color <b>del borde</b>. </li>
+<li> ``shape``: Forma del punto. </li>
+<li> ``fill``: Color del relleno. </li>
+<li> ``alpha``: mide la transparencia (inverso del número de objetos que han de superponerse para lograr opacidad). </li>
+<li> ``size``: Tamaño del punto. </li>
+
+
+## <i>Scatterplots</i> algo más vistosos (I)
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = diamonds, aes(x = carat, y = price, col = color)) + 
+  geom_point(alpha = 1/10)
+```
+
+
+## 3. Geoms 
+
+Las capas (o __geoms__ para __ggplot2__) son los verbos del lenguaje de los gráficos. Indican qué hacer con los datos y las estéticas elegidas.
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE, out.width = "50%", out.height= "50%"}
+
+data(iris) 
+
+gg <- ggplot(data = iris, aes(x = Sepal.Length, y = Sepal.Width)) 
+
+gg +  geom_point()
+```
+
+
+---
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ gg + geom_line()
+```
+
+
+---
+Una característica de las capas, y de ahí su nombre, es que pueden superponerse.
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+gg + geom_point(colour = 'darkblue') + geom_line(colour = 'lightblue')
+```
+
+---
+
+--- 
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+gg + geom_point(colour = 'darkblue', size = 3) + geom_line(colour = 'lightblue')
+```
+
+
+---
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+gg + geom_point(colour = 'darkblue', size = 3) +
+    geom_line(aes(colour = Species, linetype =  Species))
+
+```
+
+---
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+
+ggplot(data = iris, aes(x = Sepal.Length, y = Sepal.Width,colour = Species)) +
+        geom_point() + geom_line()
+
+```
+
+
+
+---
+Una vez creado un gráfico, es posible exportarlo a png, jpg, etc. La función _ggsave_ guarda en un fichero el último gráfico generado con ggplot2. Lo hace, además, en el formato indicado en el nombre del fichero que se quiere generar. 
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+
+ggsave("mi_grafico.png")
+
+```
+
+---
+
+
+## Un nuevo set de datos
+
+Antes de seguir con los componentes de un gráfico, vamos a echar un vistazo a un nuevo set de datos y los gráficos estadísticos más habituales.
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+
+#install.packages('ISLR', dependencies=TRUE, repos='http://cran.rstudio.com/')
+library(ISLR)
+data(Carseats)
+str(Carseats)
+```
+
+Documentación: <a href = "https://cran.r-project.org/web/packages/ISLR/ISLR.pdf">aquí</a>.
+
+
+## Gráficos univariantes: histograma (I)
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = Carseats, aes(x = Sales)) + 
+  geom_histogram(bins = 50, fill = 'red')
+# El parámetro 'bins' puede sustituirse por 'binwidth'
+```
+
+
+## Gráficos univariantes: histograma (II)
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = Carseats, aes(x = Sales, fill = Urban)) + 
+  geom_histogram(bins = 50)
+```
+
+
+## Gráficos univariantes: histograma (III)
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = Carseats, aes(x = Sales, fill = Urban)) + 
+  geom_histogram(position = 'dodge', bins = 50)
+```
+
+
+
+## Gráficos univariantes: densidad (I)
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = Carseats, aes(x = Sales, fill = Urban)) + 
+  geom_density()
+```
+
+
+## Gráficos univariantes: densidad (II)
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = Carseats, aes(x = Sales, fill = Urban)) + 
+  geom_density(alpha = 0.3)
+```
+
+
+## Gráficos univariantes: barras (I)
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+Carseats$Education <- as.ordered(Carseats$Education)
+```
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE, fig.width= 6.5, fig.height=4}
+ggplot(data = Carseats, aes(x = Education)) + geom_bar()
+```
+
+
+## Gráficos univariantes: barras (II)
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = Carseats, aes(x = Education)) + 
+  geom_bar(fill = 'red') + 
+  coord_flip()
+```
+
+
+## Gráficos univariantes: barras (III)
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = Carseats, aes(x = Education, fill = Urban)) + 
+  geom_bar(position = 'dodge')
+```
+
+## Gráficos univariantes: barras (IV)
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = Carseats, aes(x = Education, fill = Urban)) + 
+  geom_bar(position = 'fill')
+```
+
+
+## Gráficos univariantes: boxplots (I)
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = Carseats, aes(x = 1, y = Sales)) + 
+  geom_boxplot()
+```
+
+
+## Gráficos univariantes: boxplots (II)
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = Carseats, aes(x = ShelveLoc, y = Sales)) + 
+  geom_boxplot()
+```
+
+
+## Gráficos univariantes: boxplots (III)
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = Carseats, aes(x = ShelveLoc, y = Sales, fill = Urban)) + 
+  geom_boxplot()
+```
+
+
+## 4. Stats (I)
+
+Las transformaciones estadísticas (_stat_) resumen los datos en
+distintas formas. Por ejemplo, conteos e intervalos en los
+histogramas.
+
+Sea explícita o implícitamente, todos los gráficos de ggplot2 contienen un elemento obligatorio más: los <i>stats</i>. Los <i>stats</i> son agregaciones de los datos que facilitan su presentación y se asocian a cada <i>geom</i>.
+
+<ul>
+<li> Los puntos, que no representan ningún tipo de agregación, llevan por defecto el <i>stat <b>'identity'</b></i>.</li>
+<li> La línea de tendencia, que se define mediante la agregación dada por el modelo GAM, viene dada por el <i>stat <b>'smooth'</b></i>.</li>
+</ul>
+
+## 4. Stats (II)
+
+¿Qué muestra este gráfico de barras?
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = diamonds, aes(x = color)) + geom_bar()
+```
+
+
+## 4. Stats (III)
+
+¿Qué hacemos si queremos mostrar el precio medio por color en un gráfico de barras?
+
+----
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+diamonds %>% 
+  group_by(color) %>% 
+  summarise(avg_price = mean(price)) %>% 
+  ggplot(aes(x = color, y = avg_price)) +
+  geom_bar(stat = 'identity')
+```
+
+## 4. Stats (IV)
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = diamonds, aes(x = color, y = price)) +
+  stat_summary(fun.y = 'mean', geom = 'bar')
+```
+
+
+## 4. Stats (V)
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = diamonds[diamonds$color == 'I',], aes(x = x, y = price)) +
+  geom_point(aes(colour = clarity))
+
+```
+
+## 4. Stats (VI)
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = diamonds[diamonds$color == 'I',], aes(x = x, y = price)) +
+  geom_point(aes(colour = clarity))  +
+  stat_smooth(method = 'lm')
+
+```
+
+
+## 4. Stats (VII)
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = diamonds[diamonds$color == 'I',], aes(x = x, y = price)) +
+  geom_point(aes(colour = clarity))  +
+  stat_smooth()
+
+```
+
+
+## 5. Facets (I)
+
+Los <i>facets</i> permiten separar gráficos "superpuestos" en base a valores de una variable categórica. El <i>facetting</i> es mucho más eficiente que hacer varios gráficos por separado y unirlos.
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+library(ISLR)
+data(Carseats)
+str(Carseats)
+```
+
+---
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = Carseats, aes(x = Sales, fill = Urban)) + 
+  geom_density(alpha = 0.2)
+```
+
+
+## 5. Facets (II)
+
+**Dividir por factores.**
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+
+ggplot(data = Carseats, aes(x = Sales, fill = Urban)) + 
+  geom_density() + 
+  facet_grid(Urban ~ .)
+```
+
+---
+**Dividir por filas o columnas**
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = Carseats, aes(x = Sales, fill = Urban)) + 
+  geom_density() + 
+  facet_wrap(~Urban)
+```
+
+---
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = Carseats, aes(x = Sales, fill = Urban)) + 
+  geom_density() + 
+  facet_wrap(~Urban, nrow = 2)
+```
+
+
+## 6.Escalas (I)
+
+Las escalas (<i>scale</i>) mapean valores específicos de una variable del set de datos a los atributos estéticos (_aesthetic_: color, tamaño o forma). Concretamente, definen el rango de valores posibles del aesthetic y establecen la correspondencia entre éstos y los valores de la variable del set de datos que se le ha asignado.
+
+<ul>
+<li> Discretas vs continuas. </li>
+<li> De posición. </li>
+<li> De tamaño. </li>
+<li> De color. </li>
+<li> ... </li>
+</ul>
+
+##
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = diamonds, aes(x = carat, y = price, col = color)) + 
+  geom_point(alpha = 1/10)
+```
+
+## 6. Escalas (II)
+
+```{r, warning=FALSE, fig.width=6, fig.height=4}
+ggplot(data = diamonds, aes(x = carat, y = price, col = color)) + 
+  geom_point(alpha = 1/10) +
+  scale_y_sqrt()
+```
+
+## 6. Escalas (III)
+
+```{r, warning=FALSE, fig.width=6, fig.height=4}
+ggplot(data = diamonds, aes(x = carat, y = price, col = color)) + 
+  geom_point(alpha = 1/10) +
+  scale_y_sqrt() +
+  geom_smooth(method = 'lm', col = 'black')
+```
+
+## 6. Escalas (IV)
+
+```{r, warning=FALSE, fig.width= 6.5, fig.height=4}
+ggplot(data = diamonds, aes(x = carat, y = price, col = color)) + 
+  geom_point(alpha = 1/10) +
+  scale_x_continuous(name = 'Peso') +
+  scale_y_sqrt(name = 'Precio') +
+  geom_smooth(method = 'lm', col = 'black')
+```
+
+## 6. Escalas (V)
+
+```{r, warning=FALSE, fig.width=3.75, fig.height=2.5}
+ggplot(data = diamonds, aes(x = carat, y = price, col = color)) + 
+  geom_point() +
+  scale_x_continuous(name = 'Peso') +
+  scale_y_sqrt(name = 'Precio') +
+  geom_smooth(method = 'lm', col = 'black') +
+  scale_color_manual(
+    name = 'Colorcito',
+    breaks = c('D', 'E', 'F', 'G', 'H', 'I', 'J'),
+    labels = c('dd', 'ee', 'ff', 'gg', 'hh', 'ii', 'jj'),
+    values = c('red', 'blue', 'yellow', 'orange', 'green', 'brown', 'gray')
+  )
+```
+
+
+## 7. Temas (I)
+
+Los temas (<i>themes</i>) sirven para modificar los aspectos visuales "no relativos a los datos" de un gráfico, tales como:
+
+<ul>
+<li> Color y mallado del fondo. </li>
+<li> Posición de la leyenda </li>
+<li> Formato de los <i>ticks</i> de los ejes</li>
+<li> ...</li>
+</ul>
+
+Existen tantas opciones que no tiene mucho sentido revisarlas todas, aunque pueden consultarse en la <a href="http://ggplot2.tidyverse.org/reference/theme.html">documentación</a>.
+
+## 7. Temas (II)
+
+Muchas veces, con utilizar un tema predefinido para modificar el gráfico es más que suficiente.
+
+```{r, warning=FALSE, fig.width= 5.5, fig.height= 3}
+ggplot(data = diamonds, aes(x = carat, y = price, col = color)) + 
+  geom_point(alpha = 1/10) +
+  scale_y_sqrt() +
+  theme_minimal()
+```
+
+## 7. Temas (III)
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE, fig.width= 6.5, fig.height=4}
+#install.packages('ggthemes', dependencies=TRUE, repos='http://cran.rstudio.com/')
+library(ggthemes)
+
+ggplot(data = diamonds, aes(x = carat, y = price, col = color)) + 
+  geom_point(alpha = 1/10) +
+  scale_y_sqrt() +
+  theme_fivethirtyeight()
+```
+
+## 8. Leyendas
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = Carseats, aes(x = Urban, y = Sales, fill = Urban)) + 
+  geom_boxplot() + 
+ scale_x_discrete( breaks = c('No','Yes'), labels =c('No Urban','Urban') ) + 
+  scale_fill_discrete(name = 'Urban: Yes / No')
+```
+
+---
+
+
+```{r, fig.width= 6.5, fig.height=4, warning=FALSE}
+ggplot(data = Carseats, aes(x = Urban, y = Sales, fill = Urban)) + 
+  geom_boxplot() + 
+ scale_x_discrete( breaks = c('No','Yes'), labels =c('No Urban','Urban') ) + 
+  scale_fill_discrete(name = 'Urban: Yes / No', breaks = c('No','Yes'), labels =c('No Urban','Urban') )
+```
+
+
+## 9. Múltiples gráficos
+
+```{r, fig.width= 6.5, fig.height=3, warning=FALSE, message=FALSE}
+
+library(gridExtra)
+g1 <- ggplot(data = diamonds, aes(x = carat, y = price, col = color)) + 
+    geom_point(alpha =0.4) + 
+ scale_color_discrete( name = "Color" )
+g2 <- ggplot(data = diamonds, aes(x = carat, y = price, col = clarity)) + 
+    geom_point(alpha = 0.4) + 
+ scale_color_discrete( name = "Color" )
+
+grid.arrange( g1, g2, nrow = 1)
+```
+
+
+## 10. Ejemplo más complejo 
+
+http://rstudio-pubs-static.s3.amazonaws.com/284329_c7e660636fec4a42a09eed968dc47f32.html
+

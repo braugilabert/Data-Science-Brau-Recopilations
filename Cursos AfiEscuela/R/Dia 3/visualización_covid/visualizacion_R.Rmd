@@ -1,0 +1,175 @@
+---
+title: "Visualización de la información - Covid-19"
+author: |
+    Manuel Rueda
+date: "Abril 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+
+## Introducción a visualización estática
+## Scatterplots - Gráfico de puntos
+
+
+
+```{r, echo=TRUE}
+library(dplyr)
+library(ggplot2)
+library(plotly)
+
+covid <- read.csv('covid_19_spain.csv', sep = ';', stringsAsFactors = FALSE)
+
+covid <- covid[covid$Confirmed > 0, ]
+
+
+```
+
+
+```{r, echo=TRUE}
+
+plot(covid$day, covid$Deaths)
+
+ggplot(covid, aes(x =  day, y = Deaths)) +
+  geom_point()
+
+```
+
+```{r}
+
+
+g <- ggplot(covid, aes(x =  day, y = Deaths)) +
+  geom_point(colour = 'lightblue', alpha = 0.5) + 
+  geom_line(colour = 'lightblue')
+
+g
+
+```
+
+```{r}
+
+ggplotly(g)
+
+```
+
+```{r}
+
+
+g <- ggplot() +
+  geom_line(data = covid, aes(x =  day, y = Deaths), colour = 'red', alpha = 0.7) + 
+  geom_line(data = covid, aes(x =  day, y = Recovered), colour = 'darkgreen', alpha = 0.7)  
+
+ggplotly(g)
+
+```
+
+## Bar Plot - Gráfico de barras
+
+
+```{r, echo=TRUE}
+
+g <- ggplot(covid, aes(x = day, y = Confirmed)) + 
+  geom_col(position = 'dodge', fill = 'lightblue', color = 'darkblue')
+
+g
+
+```
+
+
+```{r}
+
+ggplotly(g)
+
+```
+
+
+## Lines - Gráfico de líneas
+
+### Enfermos en España, China e Italia
+
+```{r, echo=TRUE}
+library(lubridate)
+
+covid <- read.csv('covid_19.csv', sep = ';', stringsAsFactors = FALSE)
+
+covid$Date <- mdy(covid$Date)
+
+covid <- covid %>%  filter(Country.Region %in% c('China', 'Italy', 'Spain'))
+
+covid <- covid %>% group_by(Country.Region) %>% arrange(Date) %>%  mutate(day = 1:n_distinct(Date))
+
+
+g <- ggplot(covid, aes(x = day, y = Confirmed, color = Country.Region)) + 
+      geom_line() +
+      ggtitle('Enfermos en España, China e Italia') + 
+    xlab('Día') + ylab('Casos confirmados')
+
+
+g
+
+```
+
+```{r}
+
+ggplotly(g)
+
+```
+
+
+
+```{r}
+
+
+ggplot(covid, aes(x = day, y = Confirmed, color = Country.Region)) + 
+      geom_line() + 
+theme(panel.background = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank()) +
+      ggtitle('Enfermos en España, China e Italia') + 
+    xlab('Día') + ylab('Casos confirmados')
+```
+
+
+
+```{r}
+
+g <- ggplot(covid, aes(x = day, y = Confirmed, color = Country.Region)) + 
+      geom_line() + 
+theme_classic() +
+      ggtitle('Enfermos en España, China e Italia') + 
+    xlab('Día') + ylab('Casos confirmados')
+
+g2 <- ggplotly(g)
+
+g2
+
+```
+
+```{r}
+library(htmlwidgets)
+
+saveWidget(g2, "comparativa.html")
+
+```
+
+
+### Fallecidos en España, China e Italia
+
+
+```{r}
+ggplot(covid, aes(x = day, y = Deaths, color = Country.Region)) + 
+      geom_line() + 
+theme_light() +
+      ggtitle('Número de fallecidos en España, China e Italia') + 
+    xlab('Día') + ylab('Casos confirmados')
+
+```
+  
+  
